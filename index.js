@@ -1,5 +1,6 @@
 const inquirer = require('inquirer');
 const fs = require('fs');
+const path = require('path');
 const generateMarkdown = require('./utils/generateMarkdown.js');
 
 const questions = [
@@ -57,7 +58,13 @@ const questions = [
 ];
 
 function writeToFile(fileName, data) {
-    fs.writeFile(fileName, data, (err) =>
+    const dir = './generated-readmes';
+    const filePath = path.join(dir, fileName);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+    }
+
+    fs.writeFile(filePath, data, (err) =>
         err ? console.error(err) : console.log('Success! Your README.md file has been generated!')
     );
 }
@@ -65,9 +72,11 @@ function writeToFile(fileName, data) {
 function init() {
     inquirer.prompt(questions)
         .then((data) => {
-            writeToFile('README.md', generateMarkdown(data));
-        });
+            const timestamp = new Date().getTime();
+            const fileName = `README-${timestamp}.md`;
 
+            writeToFile(fileName, generateMarkdown(data));
+        });
 }
 
 init();
